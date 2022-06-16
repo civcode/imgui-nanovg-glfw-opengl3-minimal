@@ -16,7 +16,6 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/dep/nanovg/src
     ${PROJECT_SOURCE_DIR}/dep/nanovg/example
     ${PROJECT_SOURCE_DIR}/dep/stb
-    #${PROJECT_SOURCE_DIR}/dep/nanovg/obsolete
 )
 
 file(GLOB imgui_SRC
@@ -24,7 +23,6 @@ file(GLOB imgui_SRC
     ${PROJECT_SOURCE_DIR}/dep/imgui/*.cpp
     ${PROJECT_SOURCE_DIR}/dep/imgui/backends/imgui_impl_glfw.cpp
     ${PROJECT_SOURCE_DIR}/dep/imgui/backends/imgui_impl_opengl3.cpp
-
 )
 
 file(GLOB nanovg_SRC

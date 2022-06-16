@@ -58,12 +58,12 @@ int main(int, char**)
     glfwSetErrorCallback(glfw_error_callback);
     GLFWwindow* window;
 
-
 	if (!glfwInit()) {
 		printf("Failed to init GLFW.");
 		return -1;
 	};
 
+    // Set up NanoVG
     NVGcontext* vg = NULL;
 	GPUtimer gpuTimer;
 	PerfGraph fps, cpuGraph, gpuGraph;
@@ -91,11 +91,8 @@ int main(int, char**)
         return 1;
 
     glfwMakeContextCurrent(window);
-
     
     vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
-    //vg = nvgCreateGL2(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
-
 
 	if (vg == NULL) {
 		printf("Could not init nanovg.\n");
@@ -109,9 +106,7 @@ int main(int, char**)
 	pxRatio = (float)fbWidth / (float)winWidth;
 
 	// The image pattern is tiled, set repeat on x and y.
-	//fb = nvgluCreateFramebuffer(vg, (int)(100*pxRatio), (int)(100*pxRatio), NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY);
 	fb = nvgluCreateFramebufferGL3(vg, (int)(100*pxRatio), (int)(100*pxRatio), NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY);
-	//fb = nvgluCreateFramebufferGL2(vg, (int)(100*pxRatio), (int)(100*pxRatio), NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY);
 	if (fb == NULL) {
 		printf("Could not create FBO.\n");
 		return -1;
@@ -149,11 +144,11 @@ int main(int, char**)
     // - Read 'docs/FONTS.txt' for more instructions and details.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
     //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Roboto-Medium.ttf", 16.0f);
     io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Roboto-Medium.ttf", 17.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Cousine-Regular.ttf", 15.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/DroidSans.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/ProggyTiny.ttf", 10.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 
@@ -238,30 +233,32 @@ int main(int, char**)
 
         
         //NanoVG
-        nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
-        nvgSave(vg);
-        double mx, my;
-        float zoom = 1;
+        {
+            nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
+            nvgSave(vg);
+            double mx, my;
+            float zoom = 1;
 
-        glfwGetCursorPos(window, &mx, &my);
-        // cursor
-        nvgSave(vg);
-        nvgTranslate(vg, mx, my); //move offset of CS to [mx. my]
-        nvgScale(vg, zoom, zoom);
-        nvgBeginPath(vg);
-        nvgMoveTo(vg, 0, 0);
-        nvgLineTo(vg, 20, 0);
-        nvgMoveTo(vg, 0, 0);
-        nvgLineTo(vg, 0, 20);
-        nvgCircle(vg, 20, 20, 2);
-        nvgStrokeColor(vg, nvgRGBAf(1,1,1,1));
-        nvgStrokeWidth(vg, 2);
-        nvgStroke(vg);
-        nvgClosePath(vg);
-        nvgRestore(vg);
+            glfwGetCursorPos(window, &mx, &my);
+            // cursor
+            nvgSave(vg);
+            nvgTranslate(vg, mx, my); //move offset of CS to [mx. my]
+            nvgScale(vg, zoom, zoom);
+            nvgBeginPath(vg);
+            nvgMoveTo(vg, 0, 0);
+            nvgLineTo(vg, 20, 0);
+            nvgMoveTo(vg, 0, 0);
+            nvgLineTo(vg, 0, 20);
+            nvgCircle(vg, 20, 20, 2);
+            nvgStrokeColor(vg, nvgRGBAf(1,1,1,1));
+            nvgStrokeWidth(vg, 2);
+            nvgStroke(vg);
+            nvgClosePath(vg);
+            nvgRestore(vg);
 
-        nvgRestore(vg);
-        nvgEndFrame(vg);
+            nvgRestore(vg);
+            nvgEndFrame(vg);
+        }
 
         glfwMakeContextCurrent(window);
         glfwSwapBuffers(window);
