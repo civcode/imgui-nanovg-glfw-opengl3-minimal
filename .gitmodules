@@ -1,0 +1,9 @@
+[submodule "dep/imgui"]
+	path = dep/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "dep/nanovg"]
+	path = dep/nanovg
+	url = https://github.com/inniyah/nanovg.git
+[submodule "dep/stb/stb"]
+	path = dep/stb/stb
+	url = https://github.com/nothings/stb.git
