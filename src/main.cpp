@@ -128,8 +128,9 @@ int main(int, char**)
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
+    ImGui::StyleColorsLight();
 
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -144,11 +145,11 @@ int main(int, char**)
     // - Read 'docs/FONTS.txt' for more instructions and details.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
     //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Roboto-Medium.ttf", 16.0f);
+    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Roboto-Medium.ttf", 16.0f);
     io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Roboto-Medium.ttf", 17.0f);
-    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Cousine-Regular.ttf", 15.0f);
-    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/ProggyTiny.ttf", 10.0f);
+    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Cousine-Regular.ttf", 15.0f);
+    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/DroidSans.ttf", 16.0f);
+    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/ProggyTiny.ttf", 10.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 
@@ -212,6 +213,51 @@ int main(int, char**)
                 show_another_window = false;
             ImGui::End();
         }
+        
+        //ImGui::Button("myButton");
+        //ImGui::Begin("main",nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
+        ImGui::Begin("main");
+        //ImGui::SetWindowPos("main", ImVec2(10, 0));
+        if (ImGui::Button("my button")) {
+            printf("test\n");
+        }  
+        ImGui::Button("my button 1");
+        ImGui::Button("my button 2");
+        ImGui::End();
+
+
+        ImGui::Begin("tabs");
+        ImGui::BeginTabBar("Settings#left_tabs_bar");
+        if (ImGui::BeginTabItem("General")){
+            static bool fullscreen = false;
+            if(ImGui::Checkbox("Fullscreen Mode", &fullscreen)){
+                //fullscreen = !fullscreen;
+                printf("tab general\n");
+                //mGUICfg->toggleFullscreenMode = true;
+            }
+            if(ImGui::Checkbox("Enable Multisampling",&fullscreen)){
+                //fullscreen = !fullscreen;
+                printf("tab general\n");
+                //mGUICfg->settingsChanged = true;
+            
+            }
+            ImGui::EndTabItem();
+
+            //if(ImGui::SliderInt("MSAA Count",(int*)&mGUICfg->multisampleCount.value,mGUICfg->multisampleCount.lowerLimit,mGUICfg->multisampleCount.upperLimit))
+                //mGUICfg->settingsChanged = true;
+        }
+        if (ImGui::BeginTabItem("GUI")){
+            ImGui::Text("Tab 2");
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Tab Name")){
+            ImGui::Text("Tab 3");
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+        ImGui::End();
+        //ImGui::Dummy(ImVec2(20, 20));
+
 
         // Rendering
         ImGui::Render();
@@ -234,6 +280,8 @@ int main(int, char**)
         
         //NanoVG
         {
+            glfwGetWindowSize(window, &winWidth, &winHeight);
+            glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
             nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
             nvgSave(vg);
             double mx, my;
@@ -265,7 +313,6 @@ int main(int, char**)
     }
 
     // Cleanup
-    //ImGui_ImplOpenGL2_Shutdown();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
