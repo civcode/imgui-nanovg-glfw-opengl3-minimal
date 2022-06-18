@@ -5,5 +5,5 @@
 	path = dep/nanovg
 	url = https://github.com/inniyah/nanovg.git
 [submodule "dep/stb/stb"]
-	path = dep/stb/stb
+	path = dep/stb
 	url = https://github.com/nothings/stb.git

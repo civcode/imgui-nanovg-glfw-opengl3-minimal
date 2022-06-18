@@ -231,20 +231,12 @@ int main(int, char**)
         if (ImGui::BeginTabItem("General")){
             static bool fullscreen = false;
             if(ImGui::Checkbox("Fullscreen Mode", &fullscreen)){
-                //fullscreen = !fullscreen;
                 printf("tab general\n");
-                //mGUICfg->toggleFullscreenMode = true;
             }
             if(ImGui::Checkbox("Enable Multisampling",&fullscreen)){
-                //fullscreen = !fullscreen;
                 printf("tab general\n");
-                //mGUICfg->settingsChanged = true;
-            
             }
             ImGui::EndTabItem();
-
-            //if(ImGui::SliderInt("MSAA Count",(int*)&mGUICfg->multisampleCount.value,mGUICfg->multisampleCount.lowerLimit,mGUICfg->multisampleCount.upperLimit))
-                //mGUICfg->settingsChanged = true;
         }
         if (ImGui::BeginTabItem("GUI")){
             ImGui::Text("Tab 2");
