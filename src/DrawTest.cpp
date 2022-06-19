@@ -2,15 +2,16 @@
 
 
 DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx) :
-    zoom_(1)
+    zoom_(1),
+    dataStructureType_(EDataStructureType::kStack)
 {
     window_ = window;
     vg_ = ctx;
 
     grid_.isGridOn = true;
     grid_.cellSizePx = 10;
-    grid_.width = 25;
-    grid_.height = 20;
+    grid_.width = 35;
+    grid_.height = 25;
     grid_.offsetPx = {30, 30};
     //grid_.cells[0].resize(100);
     //grid_.cells[1].resize(grid_.height);
@@ -171,6 +172,39 @@ void DrawTest::DrawToFb() {
     nvgEndFrame(vg_);
     nvgluBindFramebufferGL3(nullptr);    
 }
+// void DrawTest::DataStructure_pop(Vec2i p) {
+//     switch (dataStructureType_) {
+//         case EDataStructureType::kStack: 
+//             stack_.pop();
+//             break;
+//         case EDataStructureType::kQueue:
+//             queue_.pop();
+//             break;
+//     }
+    
+// }
+// DrawTest::Vec2i DrawTest::DataStructure_get(Vec2i p) {
+//     Vec2i p = {0,0};
+//     switch (dataStructureType_) {
+//         case EDataStructureType::kStack: 
+//             p = stack_.top();
+//             break;
+//         case EDataStructureType::kQueue:
+//             p = queue_.front();
+//             break;
+//     }
+//     return p;
+// }
+// void DrawTest::DataStructure_push(Vec2i p) {
+//     switch (dataStructureType_) {
+//         case EDataStructureType::kStack: 
+//             stack_.push(p);
+//             break;
+//         case EDataStructureType::kQueue:
+//             queue_.push(p);
+//             break;
+//     }
+// }
 /*
 void DrawTest::draw() {
 
@@ -402,6 +436,12 @@ void DrawTest::draw() {
     //     return;
     // }
     ImGui::Begin("main");
+    static int e = 0;
+    ImGui::RadioButton("DFS", &e, 0); ImGui::SameLine();
+    ImGui::RadioButton("BFS", &e, 1); //ImGui::SameLine();
+    if (e == 0) algorithmType_ = EAlgorithmType::kDFS;
+    if (e == 1) algorithmType_ = EAlgorithmType::kBFS;
+
     //ImGui::SetWindowPos("main", ImVec2(10, 0));
     if (ImGui::Button("step") || (run && timer_->is_expired())) {
         //printf("test\n");
@@ -579,18 +619,19 @@ void DrawTest::draw() {
         //nvgScale(vg_, 2.0, 2.0);
 
         if (true) {
-        float iw = grid_.width*grid_.cellSizePx;
-        float ih = grid_.height*grid_.cellSizePx;
-        NVGpaint img = nvgImagePattern(vg_, 0, 0, iw, ih, 0, fb_->image, 1.0f);
+            // use fb
+            float iw = grid_.width*grid_.cellSizePx;
+            float ih = grid_.height*grid_.cellSizePx;
+            NVGpaint img = nvgImagePattern(vg_, 0, 0, iw, ih, 0, fb_->image, 0.2f);
 
-        nvgBeginPath(vg_);
-        //nvgRoundedRect(vg_, 300, 30, 100, 100, 5);
-        nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
-        nvgFillPaint(vg_, img);
-        nvgFill(vg_);
-        nvgClosePath(vg_);
+            nvgBeginPath(vg_);
+            //nvgRoundedRect(vg_, 300, 30, 100, 100, 5);
+            nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
+            nvgFillPaint(vg_, img);
+            nvgFill(vg_);
+            nvgClosePath(vg_);
         } else {
-
+            // draw new
             nvgBeginPath(vg_);
             for (int i=0; i<grid_.height+1; i++) {
                 float xFrom = 0;
@@ -624,15 +665,15 @@ void DrawTest::draw() {
 
     }
 
-    ImGui::Begin("fb");
-    if (ImGui::Button("step")) {
-        //nvgCircle(vg_, 50, 50, 20);
-        //nvgFillColor(vg_, nvgRGBAf(1,0,0,1));
-        //nvgFill(vg_);
+    // ImGui::Begin("fb");
+    // if (ImGui::Button("step")) {
+    //     //nvgCircle(vg_, 50, 50, 20);
+    //     //nvgFillColor(vg_, nvgRGBAf(1,0,0,1));
+    //     //nvgFill(vg_);
 
-    this->DrawToFb();
-    }
-    ImGui::End();
+    // this->DrawToFb();
+    // }
+    // ImGui::End();
 
     // NVGpaint img = nvgImagePattern(vg_, 0, 0, 100, 100, 0, fb_->image, 1.0f);
 

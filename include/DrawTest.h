@@ -45,6 +45,17 @@ private:
         kVisited,
         kAdjacent
     };
+    
+    enum class EDataStructureType {
+        kStack,
+        kQueue
+    };
+
+    enum class EAlgorithmType {
+        kDFS,
+        kBFS,
+        kAStar
+    };
 
     typedef struct Cell_ {
         bool has_changed;
@@ -73,6 +84,9 @@ private:
     float pxRatio_;
     float zoom_;
 
+    EDataStructureType dataStructureType_;
+    EAlgorithmType algorithmType_;
+
     GLFWwindow *window_;
     NVGcontext *vg_;
     NVGLUframebuffer *fb_;
@@ -85,6 +99,10 @@ private:
 
     void set_occupied();
     void DrawToFb();
+
+    // void DataStructure_pop(Vec2i p);
+    // Vec2i DataStructure_get(Vec2i p);
+    // void DataStructure_push(Vec2i p);
 
 };
 
