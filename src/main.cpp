@@ -20,6 +20,9 @@
 #include "nanovg_gl_utils.h"
 #include "perf.h"
 
+
+#include "DrawTest.h"
+
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
 // Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
@@ -39,16 +42,22 @@ void errorcb(int error, const char* desc)
 
 int loadFonts(NVGcontext *vg) {
     int font;
-    font = nvgCreateFont(vg, "sans", "../example/Roboto-Regular.ttf");
+
+    font = nvgCreateFont(vg, "roboto-regular", "../dep/nanovg/example/Roboto-Regular.ttf");
     if (font == -1) {
         printf("Could not add font regular.\n");
         return -1;
     }
-    font = nvgCreateFont(vg, "sans-bold", "../example/Roboto-Bold.ttf");
+    font = nvgCreateFont(vg, "roboto-medium", "../dep/imgui/misc/fonts/Roboto-Medium.ttf");
     if (font == -1) {
-        printf("Could not add font bold.\n");
+        printf("Could not add font regular.\n");
         return -1;
     }
+    // font = nvgCreateFont(vg, "sans-bold", "../dep/nanovg/example/Roboto-Bold.ttf");
+    // if (font == -1) {
+    //     printf("Could not add font bold.\n");
+    //     return -1;
+    // }
     return 0;
 }
 
@@ -112,10 +121,10 @@ int main(int, char**)
 		return -1;
 	}
 
-	// if (loadFonts(vg) == -1) {
-	// 	printf("Could not load fonts\n");
-	// 	return -1;
-	// }
+	if (loadFonts(vg) == -1) {
+		printf("Could not load fonts\n");
+		return -1;
+	}
     
 
     glfwSwapInterval(1); // Enable vsync
@@ -145,18 +154,22 @@ int main(int, char**)
     // - Read 'docs/FONTS.txt' for more instructions and details.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
     //io.Fonts->AddFontDefault();
-    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Roboto-Medium.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Roboto-Medium.ttf", 16.0f);
     io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Roboto-Medium.ttf", 17.0f);
-    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Cousine-Regular.ttf", 15.0f);
-    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/DroidSans.ttf", 16.0f);
-    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/ProggyTiny.ttf", 10.0f);
+    io.Fonts->AddFontFromFileTTF("../dep/nanovg/example/Roboto-Regular.ttf", 17.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Cousine-Regular.ttf", 15.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/DroidSans.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/ProggyTiny.ttf", 10.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
+    
 
     // Our state
     bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    DrawTest draw(window, vg);
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -175,7 +188,9 @@ int main(int, char**)
         ImGui::NewFrame();
 
 
+    
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+        //show_demo_window = false;
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
@@ -184,7 +199,6 @@ int main(int, char**)
             static float f = 0.0f;
             static int counter = 0;
 
-            //ImGui::SetWindowFontScale(1.6);
             
             ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
@@ -214,6 +228,7 @@ int main(int, char**)
             ImGui::End();
         }
         
+        /*
         //ImGui::Button("myButton");
         //ImGui::Begin("main",nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
         ImGui::Begin("main");
@@ -224,7 +239,7 @@ int main(int, char**)
         ImGui::Button("my button 1");
         ImGui::Button("my button 2");
         ImGui::End();
-
+        */
 
         ImGui::Begin("tabs");
         ImGui::BeginTabBar("Settings#left_tabs_bar");
@@ -251,6 +266,12 @@ int main(int, char**)
         //ImGui::Dummy(ImVec2(20, 20));
 
 
+        //ImGui::SetWindowFontScale(1.0);
+         
+
+        draw.draw();
+
+        
         // Rendering
         ImGui::Render();
         int display_w, display_h;
@@ -271,32 +292,57 @@ int main(int, char**)
 
         
         //NanoVG
-        {
+        if (true) {
             glfwGetWindowSize(window, &winWidth, &winHeight);
             glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
             nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
-            nvgSave(vg);
-            double mx, my;
-            float zoom = 1;
+            //nvgSave(vg);
 
-            glfwGetCursorPos(window, &mx, &my);
-            // cursor
-            nvgSave(vg);
-            nvgTranslate(vg, mx, my); //move offset of CS to [mx. my]
-            nvgScale(vg, zoom, zoom);
-            nvgBeginPath(vg);
-            nvgMoveTo(vg, 0, 0);
-            nvgLineTo(vg, 20, 0);
-            nvgMoveTo(vg, 0, 0);
-            nvgLineTo(vg, 0, 20);
-            nvgCircle(vg, 20, 20, 2);
-            nvgStrokeColor(vg, nvgRGBAf(1,1,1,1));
-            nvgStrokeWidth(vg, 2);
-            nvgStroke(vg);
-            nvgClosePath(vg);
-            nvgRestore(vg);
+            if (false) {
+                double mx, my;
+                float zoom = 1;
 
-            nvgRestore(vg);
+                glfwGetCursorPos(window, &mx, &my);
+                // cursor
+                nvgSave(vg);
+                nvgTranslate(vg, mx, my); //move offset of CS to [mx. my]
+                nvgScale(vg, zoom, zoom);
+                nvgBeginPath(vg);
+                nvgMoveTo(vg, 0, 0);
+                nvgLineTo(vg, 20, 0);
+                nvgMoveTo(vg, 0, 0);
+                nvgLineTo(vg, 0, 20);
+                nvgCircle(vg, 20, 20, 2);
+                nvgStrokeColor(vg, nvgRGBAf(1,1,1,1));
+                nvgStrokeWidth(vg, 2);
+                nvgStroke(vg);
+                nvgClosePath(vg);
+            }
+
+            // nvgRestore(vg);
+
+            // nvgBeginPath(vg);
+            // nvgFontSize(vg, 14.5);
+            // //nvgFontSize(vg, 17.0);
+            // nvgFontFace(vg, "roboto-regular");
+            // nvgTextAlign(vg, NVG_ALIGN_TOP);
+            // //nvgFontBlur(vg, 0.1);
+            // nvgFillColor(vg, nvgRGBf(0,0,0));
+            // nvgText(vg, 50, 100, "Hello, world!", nullptr);
+            // nvgFontFace(vg, "roboto-medium");
+            // nvgText(vg, 50, 120, "Hello, world!", nullptr);
+            // nvgText(vg, 50, 160, "Demo Window", nullptr);
+            // nvgRect(vg, 30, 120, 17, 17);
+            // nvgRect(vg, 50, 140, 17, 17);
+            // nvgFill(vg); 
+            // nvgClosePath(vg);
+
+
+            //nvgRestore(vg);
+
+            //nvgRestore(vg);
+
+
             nvgEndFrame(vg);
         }
 

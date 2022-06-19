@@ -7,3 +7,6 @@
 [submodule "dep/stb/stb"]
 	path = dep/stb
 	url = https://github.com/nothings/stb.git
+[submodule "dep/SimpleTimer"]
+	path = dep/SimpleTimer
+	url = https://github.com/civcode/SimpleTimer.git
