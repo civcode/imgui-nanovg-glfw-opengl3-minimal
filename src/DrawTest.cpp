@@ -31,6 +31,23 @@ DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx) :
     timer_ = new SimpleTimer(std::chrono::milliseconds(100));
 
     this->set_occupied();
+
+    glfwGetWindowSize(window_, &winWidth_, &winHeight_);
+    glfwGetFramebufferSize(window_, &fbWidth_, &fbHeight_);
+    pxRatio_ = static_cast<float>(fbWidth_) / static_cast<float>(winWidth_);
+    printf("pxRatio = %f\n", pxRatio_);
+
+    int fbw = grid_.width * grid_.cellSizePx * pxRatio_; 
+    int fbh = grid_.height * grid_.cellSizePx * pxRatio_; 
+    //fb_ = nvgluCreateFramebufferGL3(vg_, fbw, fbh, NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY);
+    fb_ = nvgluCreateFramebufferGL3(vg_, fbw, fbh, 0);
+    //fb_ = nvgluCreateFramebufferGL3(vg_, fbw, fbw, 0);
+
+    if (fb_ == nullptr) {\
+        printf("Could not create FBO.\n");
+    }
+
+    this->DrawToFb();
 }
 
 void DrawTest::set_occupied() {
@@ -44,6 +61,116 @@ void DrawTest::set_occupied() {
     }
 }
 
+
+/*
+void DrawTest::DrawToFb() {
+
+    int winWidth, winHeight;
+    int fboWidth, fboHeight;
+    int pw, ph, x, y;
+    static float fx = 1;
+    float s = 20.0f;
+    float sr = (cosf(fx) + 1) * 0.5f;
+    float r = s * 0.6f * (0.2f + 0.8f * sr);
+    fx += 0.2;
+
+    if (fb_ == nullptr)
+        return;
+
+    nvgImageSize(vg_, fb_->image, &fboWidth, &fboHeight);
+    winWidth = (int)(fboWidth / pxRatio_);
+    winHeight = (int)(fboHeight / pxRatio_);
+
+    // Draw some stuff to an FBO as a test
+    nvgluBindFramebufferGL3(fb_);
+    glViewport(0, 0, fboWidth, fboHeight);
+    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    nvgBeginFrame(vg_, winWidth, winHeight, pxRatio_);
+
+    pw = (int)ceilf(winWidth / s);
+    ph = (int)ceilf(winHeight / s);
+
+    nvgBeginPath(vg_);
+    for (y = 0; y < ph; y++) {
+        for (x = 0; x < pw; x++) {
+            float cx = (x + 0.5f) * s;
+            float cy = (y + 0.5f) * s;
+            nvgCircle(vg_, cx, cy, r);
+        }
+    }
+    nvgFillColor(vg_, nvgRGBA(220, 160, 0, 200));
+    nvgFill(vg_);
+
+    // ImGui::Begin("fb");
+    // if (ImGui::Button("step")) {
+    //     nvgCircle(vg_, 50, 50, 20);
+    //     nvgFillColor(vg_, nvgRGBAf(1,0,0,1));
+    //     nvgFill(vg_);
+    // }
+    // ImGui::End();
+
+    nvgClosePath(vg_);
+
+    nvgEndFrame(vg_);
+    nvgluBindFramebufferGL3(nullptr);    
+}
+*/
+
+void DrawTest::DrawToFb() {
+
+    int winWidth, winHeight;
+    int fboWidth, fboHeight;
+    int pw, ph, x, y;
+
+    if (fb_ == nullptr)
+        return;
+
+    nvgImageSize(vg_, fb_->image, &fboWidth, &fboHeight);
+    printf("fbo_size [w,h] = [%d, %d]\n", fboWidth, fboHeight);
+    winWidth = (int)(fboWidth / pxRatio_);
+    winHeight = (int)(fboHeight / pxRatio_);
+
+    // Draw some stuff to an FBO as a test
+    nvgluBindFramebufferGL3(fb_);
+    glViewport(0, 0, fboWidth, fboHeight);
+    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    nvgBeginFrame(vg_, winWidth, winHeight, pxRatio_);
+
+    nvgBeginPath(vg_);
+    for (int i=0; i<grid_.height+1; i++) {
+        float xFrom = 0;
+        float xTo = grid_.width*grid_.cellSizePx;
+        float y = i*grid_.cellSizePx;
+        nvgMoveTo(vg_, xFrom, y);
+        nvgLineTo(vg_, xTo, y);
+    }
+    //vertical lines
+    //for (int i=0; i<grid_.width/grid_.cellSizePx+1; i++) {
+    for (int i=0; i<grid_.width+1; i++) {
+        float x = i*grid_.cellSizePx;
+        float yFrom = 0;
+        float yTo = grid_.height*grid_.cellSizePx;
+        nvgMoveTo(vg_, x, yFrom);
+        nvgLineTo(vg_, x, yTo);
+    }
+    nvgStrokeColor(vg_, nvgRGBAf(0.2, 0.2, 0.2, 1));
+    nvgStrokeWidth(vg_, 1.0);
+    nvgStroke(vg_);
+    nvgClosePath(vg_);
+
+    // ImGui::Begin("fb");
+    // if (ImGui::Button("step")) {
+    //     nvgCircle(vg_, 50, 50, 20);
+    //     nvgFillColor(vg_, nvgRGBAf(1,0,0,1));
+    //     nvgFill(vg_);
+    // }
+    // ImGui::End();
+
+    nvgEndFrame(vg_);
+    nvgluBindFramebufferGL3(nullptr);    
+}
 /*
 void DrawTest::draw() {
 
@@ -265,6 +392,8 @@ void DrawTest::draw() {
 
 void DrawTest::draw() {
 
+
+
     static bool run = false;
 
     // if (run) {
@@ -449,35 +578,69 @@ void DrawTest::draw() {
         //nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
         //nvgScale(vg_, 2.0, 2.0);
 
+        if (true) {
+        float iw = grid_.width*grid_.cellSizePx;
+        float ih = grid_.height*grid_.cellSizePx;
+        NVGpaint img = nvgImagePattern(vg_, 0, 0, iw, ih, 0, fb_->image, 1.0f);
+
         nvgBeginPath(vg_);
-        for (int i=0; i<grid_.height+1; i++) {
-            float xFrom = 0;
-            float xTo = grid_.width*grid_.cellSizePx;
-            float y = i*grid_.cellSizePx;
-            nvgMoveTo(vg_, xFrom, y);
-            nvgLineTo(vg_, xTo, y);
-        }
-        //vertical lines
-        //for (int i=0; i<grid_.width/grid_.cellSizePx+1; i++) {
-        for (int i=0; i<grid_.width+1; i++) {
-            float x = i*grid_.cellSizePx;
-            float yFrom = 0;
-            float yTo = grid_.height*grid_.cellSizePx;
-            nvgMoveTo(vg_, x, yFrom);
-            nvgLineTo(vg_, x, yTo);
-        }
-        // for (i=0; i<grid_0.w/grid_0.d+1; i++) {
-        //     nvgMoveTo(vg, grid_0.x+i*grid_0.d, grid_0.y);
-        //     nvgLineTo(vg, grid_0.x+i*grid_0.d, grid_0.y+grid_0.h);
-        // }
-        nvgStrokeColor(vg_, nvgRGBAf(0.2, 0.2, 0.2, 1));
-        nvgStrokeWidth(vg_, 1.0);
-        nvgStroke(vg_);
+        //nvgRoundedRect(vg_, 300, 30, 100, 100, 5);
+        nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
+        nvgFillPaint(vg_, img);
+        nvgFill(vg_);
         nvgClosePath(vg_);
+        } else {
+
+            nvgBeginPath(vg_);
+            for (int i=0; i<grid_.height+1; i++) {
+                float xFrom = 0;
+                float xTo = grid_.width*grid_.cellSizePx;
+                float y = i*grid_.cellSizePx;
+                nvgMoveTo(vg_, xFrom, y);
+                nvgLineTo(vg_, xTo, y);
+            }
+            //vertical lines
+            //for (int i=0; i<grid_.width/grid_.cellSizePx+1; i++) {
+            for (int i=0; i<grid_.width+1; i++) {
+                float x = i*grid_.cellSizePx;
+                float yFrom = 0;
+                float yTo = grid_.height*grid_.cellSizePx;
+                nvgMoveTo(vg_, x, yFrom);
+                nvgLineTo(vg_, x, yTo);
+            }
+            // for (i=0; i<grid_0.w/grid_0.d+1; i++) {
+            //     nvgMoveTo(vg, grid_0.x+i*grid_0.d, grid_0.y);
+            //     nvgLineTo(vg, grid_0.x+i*grid_0.d, grid_0.y+grid_0.h);
+            // }
+            nvgStrokeColor(vg_, nvgRGBAf(0.2, 0.2, 0.2, 1));
+            nvgStrokeWidth(vg_, 1.0);
+            nvgStroke(vg_);
+            nvgClosePath(vg_);
+        }        
+
         nvgRestore(vg_);
 
         nvgEndFrame(vg_);
 
     }
+
+    ImGui::Begin("fb");
+    if (ImGui::Button("step")) {
+        //nvgCircle(vg_, 50, 50, 20);
+        //nvgFillColor(vg_, nvgRGBAf(1,0,0,1));
+        //nvgFill(vg_);
+
+    this->DrawToFb();
+    }
+    ImGui::End();
+
+    // NVGpaint img = nvgImagePattern(vg_, 0, 0, 100, 100, 0, fb_->image, 1.0f);
+
+    // nvgBeginPath(vg_);
+    // //nvgRoundedRect(vg_, 300, 30, 100, 100, 5);
+    // nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
+    // nvgFillPaint(vg_, img);
+    // nvgFill(vg_);
+    // nvgClosePath(vg_);
 
 }

@@ -13,8 +13,8 @@
 #include "nanovg.h"
 #include "SimpleTimer.h"
 
-//#include "nanovg_gl.h"
-//#include "nanovg_gl_utils.h"
+#include "nanovg_gl.h"
+#include "nanovg_gl_utils.h"
 
 using std::vector;
 //using std::stack;
@@ -65,8 +65,6 @@ private:
         //Eigen::Vector2i offset;
     } Grid;
 
-    GLFWwindow *window_;
-    NVGcontext* vg_;
     int winWidth_;
     int winHeight_;
     int fbWidth_;
@@ -75,6 +73,10 @@ private:
     float pxRatio_;
     float zoom_;
 
+    GLFWwindow *window_;
+    NVGcontext *vg_;
+    NVGLUframebuffer *fb_;
+
     Grid grid_;
     std::stack<Vec2i> stack_;
     std::queue<Vec2i> queue_;
@@ -82,6 +84,7 @@ private:
     SimpleTimer *timer_;
 
     void set_occupied();
+    void DrawToFb();
 
 };
 
