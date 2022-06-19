@@ -1,16 +1,17 @@
 #include "DrawTest.h"
 
 
-DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx)
+DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx) :
+    zoom_(1)
 {
     window_ = window;
     vg_ = ctx;
 
     grid_.isGridOn = true;
     grid_.cellSizePx = 10;
-    grid_.width = 30;
-    grid_.height = 20;
-    grid_.offsetPx = {50, 50};
+    grid_.width = 20;
+    grid_.height = 15;
+    grid_.offsetPx = {30, 30};
     //grid_.cells[0].resize(100);
     //grid_.cells[1].resize(grid_.height);
     Cell c = {.has_changed = false, 
@@ -26,8 +27,20 @@ DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx)
     Vec2i p = {0, 0};
     stack_.push(p);
     grid_.cells[0][0].has_changed = true;
-
     timer_ = new SimpleTimer(std::chrono::milliseconds(100));
+
+    this->set_occupied();
+}
+
+void DrawTest::set_occupied() {
+    vector<Vec2i> occ = { {3, 5}, {8, 0}, {4, 0}, {6, 6}, {6,7}, {6,8}, /*{6,9}, {6,10},*/
+                          {7,7}, {8,7}, {9,7} };
+    for (auto elem : occ) {
+        int col = elem.y;
+        int row = elem.x;
+        grid_.cells[row][col].type = ECellType::kOccupied;
+        grid_.cells[row][col].has_changed = true;
+    }
 }
 
 void DrawTest::draw() {
@@ -41,21 +54,25 @@ void DrawTest::draw() {
     // }
     ImGui::Begin("main");
     //ImGui::SetWindowPos("main", ImVec2(10, 0));
-    if (ImGui::Button("pop") || (run && timer_->is_expired())) {
+    if (ImGui::Button("step") || (run && timer_->is_expired())) {
         //printf("test\n");
         if (stack_.size() > 0) {
             Vec2i p = stack_.top();
             //printf("top = [%d, %d]\n", p.x, p.y);
             stack_.pop();
             int x, y;
-            ECellType type;
-            if (grid_.cells[p.y][p.x].type != ECellType::kVisited) {
+            //ECellType type;
+            ECellType type = grid_.cells[p.y][p.x].type;
+            //if (grid_.cells[p.y][p.x].type != ECellType::kVisited &&
+            //    grid_.cells[p.y][p.x].type != ECellType::kOccupied) {
+            if (type != ECellType::kVisited &&
+                type != ECellType::kOccupied) {
                 grid_.cells[p.y][p.x].type = ECellType::kVisited;
                 x = p.x - 1;
                 y = p.y;
                 if (x >= 0) {
                     type = grid_.cells[y][x].type;
-                    if (type != ECellType::kAdjacent && type != ECellType::kVisited) {
+                    if (type != ECellType::kAdjacent && type != ECellType::kVisited && type != ECellType::kOccupied) {
                         grid_.cells[y][x].type = ECellType::kAdjacent;
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
@@ -67,7 +84,7 @@ void DrawTest::draw() {
                 y = p.y - 1;
                 if (y >= 0) {
                     type = grid_.cells[y][x].type;
-                    if (type != ECellType::kAdjacent && type != ECellType::kVisited) {
+                    if (type != ECellType::kAdjacent && type != ECellType::kVisited && type != ECellType::kOccupied) {
                         grid_.cells[y][x].type = ECellType::kAdjacent;
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
@@ -79,7 +96,7 @@ void DrawTest::draw() {
                 y = p.y;
                 if (x < grid_.width) {
                     type = grid_.cells[y][x].type;
-                    if (type != ECellType::kAdjacent && type != ECellType::kVisited) {
+                    if (type != ECellType::kAdjacent && type != ECellType::kVisited && type != ECellType::kOccupied) {
                         grid_.cells[y][x].type = ECellType::kAdjacent;
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
@@ -91,7 +108,7 @@ void DrawTest::draw() {
                 y = p.y + 1;
                 if (y < grid_.height) {
                     type = grid_.cells[y][x].type;
-                    if (type != ECellType::kAdjacent && type != ECellType::kVisited) {
+                    if (type != ECellType::kAdjacent && type != ECellType::kVisited && type != ECellType::kOccupied) {
                         grid_.cells[y][x].type = ECellType::kAdjacent;
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
@@ -108,8 +125,9 @@ void DrawTest::draw() {
         }
     }  
     static int interval = 0;
-    ImGui::Button("adjacent");
-    if (ImGui::Button("run")) {
+    //ImGui::Button("adjacent");
+    //if (ImGui::Button("run")) {
+    if (ImGui::Button(!run ? "run" : "stop")) {
         run = !run;
         timer_->set_interval(std::chrono::milliseconds(interval));
     }
@@ -121,9 +139,20 @@ void DrawTest::draw() {
         Cell c = {.has_changed = false, .type = ECellType::kFree};
         grid_.cells = vector<vector<Cell>> (grid_.height, vector<Cell>(grid_.width, c));
         grid_.cells[0][0].has_changed = true;
+        this->set_occupied();
     }
-    if (ImGui::SliderInt("interval in ms", &interval, 0, 1000)) {
+    if (ImGui::SliderInt("interval in ms", &interval, 0, 200)) {
         timer_->set_interval(std::chrono::milliseconds(interval));
+    }
+    //ImGui::Checkbox("Show step buttons", true);
+    bool input_step = true;
+    float f32_one = 1;
+    float f32_half = 0.5;
+    float f32_step = 0.5;
+    if (ImGui::InputScalar("zoom", ImGuiDataType_Float, &zoom_, input_step ? &f32_step : NULL)) {
+        if (zoom_ < f32_step)
+            zoom_ = f32_step;
+
     }
     ImGui::End();
     
@@ -140,10 +169,10 @@ void DrawTest::draw() {
     //             };
 
     {
-        //nvgBeginFrame(vg_, winWidth_, winHeight_, pxRatio_);
+        nvgBeginFrame(vg_, winWidth_, winHeight_, pxRatio_);
         nvgSave(vg_);
         nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
-        nvgScale(vg_, 2.0, 2.0);
+        nvgScale(vg_, zoom_, zoom_);
         //horizontal lines
         //for (int i=0; i<grid_.height/grid_.cellSizePx+1; i++) {
         
@@ -172,7 +201,7 @@ void DrawTest::draw() {
                             nvgFill(vg_);
                             break;
                         case ECellType::kOccupied: 
-                            nvgFillColor(vg_, nvgRGBf(0.8,0.8,0.8));
+                            nvgFillColor(vg_, nvgRGBf(0.1, 0.1, 0.1));
                             nvgFill(vg_);
                             break;
                         case ECellType::kVisited: 
@@ -225,8 +254,9 @@ void DrawTest::draw() {
         nvgClosePath(vg_);
         nvgRestore(vg_);
 
-        //nvgEndFrame(vg_);
+        nvgEndFrame(vg_);
 
     }
 
 }
+

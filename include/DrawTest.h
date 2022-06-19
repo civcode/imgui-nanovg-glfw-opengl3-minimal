@@ -70,12 +70,16 @@ private:
     int winHeight_;
     int fbWidth_;
     int fbHeight_;
+
     float pxRatio_;
+    float zoom_;
 
     Grid grid_;
     std::stack<Vec2i> stack_;
 
     SimpleTimer *timer_;
+
+    void set_occupied();
 
 };
 

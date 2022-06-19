@@ -95,7 +95,7 @@ int main(int, char**)
 #endif
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 
-    window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL2 example", NULL, NULL);
+    window = glfwCreateWindow(1280, 720, "Dear ImGui NanoVG+GLFW+OpenGL3", NULL, NULL);
     if (window == NULL)
         return 1;
 
@@ -187,6 +187,11 @@ int main(int, char**)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
 
     
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
@@ -268,17 +273,19 @@ int main(int, char**)
 
         //ImGui::SetWindowFontScale(1.0);
          
+        //NanoVG
+        {
+            //glfwGetWindowSize(window, &winWidth, &winHeight);
+            //glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+            //nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
 
-        draw.draw();
+            draw.draw();
 
+            //nvgEndFrame(vg);
+        }
         
         // Rendering
         ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         // If you are using this code with non-legacy OpenGL header/contexts (which you should not, prefer using imgui_impl_opengl3.cpp!!),
         // you may need to backup/reset/restore current shader using the commented lines below.
@@ -292,11 +299,12 @@ int main(int, char**)
 
         
         //NanoVG
-        if (true) {
+        if (false) {
             glfwGetWindowSize(window, &winWidth, &winHeight);
             glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-            nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
+            //nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
             //nvgSave(vg);
+            //draw.draw();
 
             if (false) {
                 double mx, my;
@@ -343,7 +351,7 @@ int main(int, char**)
             //nvgRestore(vg);
 
 
-            nvgEndFrame(vg);
+            //nvgEndFrame(vg);
         }
 
         glfwMakeContextCurrent(window);
