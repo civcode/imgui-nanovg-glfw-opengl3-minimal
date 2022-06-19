@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stack>
+#include <queue>
 #include <cstdio>
 
 #include <Eigen/Dense>
@@ -76,6 +77,7 @@ private:
 
     Grid grid_;
     std::stack<Vec2i> stack_;
+    std::queue<Vec2i> queue_;
 
     SimpleTimer *timer_;
 
