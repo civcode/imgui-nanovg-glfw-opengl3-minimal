@@ -10,8 +10,8 @@ DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx) :
 
     grid_.isGridOn = true;
     grid_.cellSizePx = 10;
-    grid_.width = 35;
-    grid_.height = 25;
+    grid_.width = 25;
+    grid_.height = 15;
     grid_.offsetPx = {30, 30};
     //grid_.cells[0].resize(100);
     //grid_.cells[1].resize(grid_.height);
@@ -50,6 +50,7 @@ DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx) :
     }
 
     this->DrawToFb();
+    this->DrawToFb2();
 }
 
 void DrawTest::set_occupied() {
@@ -138,12 +139,8 @@ void DrawTest::DrawToFb() {
     glViewport(0, 0, fboWidth, fboHeight);
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
     nvgBeginFrame(vg_, winWidth, winHeight, pxRatio_);
-    
-
-
-
-
 
     nvgBeginPath(vg_);
     for (int i=0; i<grid_.height+1; i++) {
@@ -198,19 +195,12 @@ void DrawTest::DrawToFb2() {
     glViewport(0, 0, fboWidth, fboHeight);
     static bool is_fist_run = true;
     if (is_fist_run) {
-        glClearColor(0, 0, 0, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        //glClearColor(0, 0, 0, 0);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         //nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
         //nvgScale(vg_, zoom_, zoom_);
 
-        nvgBeginPath(vg_);
-        nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
-        nvgFillColor(vg_, nvgRGBf(1,1,1));
-        nvgFill(vg_);
-        nvgClosePath(vg_);
-
-        is_fist_run = false;
     }
 
     //nvgSave(vg_);
@@ -218,6 +208,17 @@ void DrawTest::DrawToFb2() {
     //nvgScale(vg_, zoom_, zoom_);
 
     nvgBeginFrame(vg_, winWidth, winHeight, pxRatio_); 
+
+    if (is_fist_run) {
+        nvgBeginPath(vg_);
+        nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
+        nvgFillColor(vg_, nvgRGBf(1,1,1));
+        nvgFill(vg_);
+        nvgClosePath(vg_);
+
+        is_fist_run = false;
+
+    }
 
 
 
@@ -660,20 +661,23 @@ void DrawTest::draw() {
     {
         nvgBeginFrame(vg_, winWidth_, winHeight_, pxRatio_);
         nvgSave(vg_);
-        //nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
+        nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
         nvgScale(vg_, zoom_, zoom_);
         //horizontal lines
         //for (int i=0; i<grid_.height/grid_.cellSizePx+1; i++) {
         
+        
         /*
         nvgBeginPath(vg_);
-        nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
+        //nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
+        nvgRect(vg_, 0, 0, 10, 10);
         nvgFillColor(vg_, nvgRGBf(1,1,1));
         nvgFill(vg_);
         nvgClosePath(vg_);
         */
        
-        //nvgRestore(vg_);
+        nvgRestore(vg_);
+        nvgEndFrame(vg_);
 
 
         {
@@ -682,6 +686,8 @@ void DrawTest::draw() {
             float ih = grid_.height*grid_.cellSizePx;
             NVGpaint img = nvgImagePattern(vg_, 0, 0, iw, ih, 0, fb2_->image, 1.0f);
 
+            nvgSave(vg_);
+            nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
             //nvgTranslate(vg_, 0, 0);
             nvgBeginPath(vg_);
             //nvgRoundedRect(vg_, 300, 30, 100, 100, 5);
@@ -689,6 +695,7 @@ void DrawTest::draw() {
             nvgFillPaint(vg_, img);
             nvgFill(vg_);
             nvgClosePath(vg_);
+            nvgRestore(vg_);
         }
 
         /*
@@ -749,12 +756,15 @@ void DrawTest::draw() {
             float ih = grid_.height*grid_.cellSizePx;
             NVGpaint img = nvgImagePattern(vg_, 0, 0, iw, ih, 0, fb_->image, 0.2f);
 
+            nvgSave(vg_);
+            nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
             nvgBeginPath(vg_);
             //nvgRoundedRect(vg_, 300, 30, 100, 100, 5);
             nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
             nvgFillPaint(vg_, img);
             nvgFill(vg_);
             nvgClosePath(vg_);
+            nvgRestore(vg_);
         } else {
             // draw new
             nvgBeginPath(vg_);
@@ -784,10 +794,11 @@ void DrawTest::draw() {
             nvgClosePath(vg_);
         }        
 
-        nvgRestore(vg_);
+        //nvgRestore(vg_);
 
-        nvgEndFrame(vg_);
+        //nvgEndFrame(vg_);
 
+        //DrawToFb2();
     }
 
     // ImGui::Begin("fb");
