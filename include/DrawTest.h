@@ -90,6 +90,7 @@ private:
     GLFWwindow *window_;
     NVGcontext *vg_;
     NVGLUframebuffer *fb_;
+    NVGLUframebuffer *fb2_;
 
     Grid grid_;
     std::stack<Vec2i> stack_;
@@ -99,6 +100,7 @@ private:
 
     void set_occupied();
     void DrawToFb();
+    void DrawToFb2();
 
     // void DataStructure_pop(Vec2i p);
     // Vec2i DataStructure_get(Vec2i p);

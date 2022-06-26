@@ -42,9 +42,10 @@ DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx) :
     int fbh = grid_.height * grid_.cellSizePx * pxRatio_; 
     //fb_ = nvgluCreateFramebufferGL3(vg_, fbw, fbh, NVG_IMAGE_REPEATX | NVG_IMAGE_REPEATY);
     fb_ = nvgluCreateFramebufferGL3(vg_, fbw, fbh, 0);
+    fb2_ = nvgluCreateFramebufferGL3(vg_, fbw, fbh, 0);
     //fb_ = nvgluCreateFramebufferGL3(vg_, fbw, fbw, 0);
 
-    if (fb_ == nullptr) {\
+    if (fb_ == nullptr || fb2_ == nullptr) {\
         printf("Could not create FBO.\n");
     }
 
@@ -138,6 +139,11 @@ void DrawTest::DrawToFb() {
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     nvgBeginFrame(vg_, winWidth, winHeight, pxRatio_);
+    
+
+
+
+
 
     nvgBeginPath(vg_);
     for (int i=0; i<grid_.height+1; i++) {
@@ -172,6 +178,94 @@ void DrawTest::DrawToFb() {
     nvgEndFrame(vg_);
     nvgluBindFramebufferGL3(nullptr);    
 }
+
+void DrawTest::DrawToFb2() {
+
+    int winWidth, winHeight;
+    int fboWidth, fboHeight;
+    int pw, ph, x, y;
+
+    if (fb2_ == nullptr)
+        return;
+
+    nvgImageSize(vg_, fb2_->image, &fboWidth, &fboHeight);
+    //printf("fbo_size [w,h] = [%d, %d]\n", fboWidth, fboHeight);
+    winWidth = (int)(fboWidth / pxRatio_);
+    winHeight = (int)(fboHeight / pxRatio_);
+
+    // Draw some stuff to an FBO as a test
+    nvgluBindFramebufferGL3(fb2_);
+    glViewport(0, 0, fboWidth, fboHeight);
+    static bool is_fist_run = true;
+    if (is_fist_run) {
+        glClearColor(0, 0, 0, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        //nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
+        //nvgScale(vg_, zoom_, zoom_);
+
+        nvgBeginPath(vg_);
+        nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
+        nvgFillColor(vg_, nvgRGBf(1,1,1));
+        nvgFill(vg_);
+        nvgClosePath(vg_);
+
+        is_fist_run = false;
+    }
+
+    //nvgSave(vg_);
+    //nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
+    //nvgScale(vg_, zoom_, zoom_);
+
+    nvgBeginFrame(vg_, winWidth, winHeight, pxRatio_); 
+
+
+
+    for (int mrow=0; mrow<grid_.height; mrow++) {
+        for (int ncol=0; ncol<grid_.width; ncol++) {
+            bool has_changed = grid_.cells[mrow][ncol].has_changed;
+            ECellType type = grid_.cells[mrow][ncol].type;
+            float x = ncol * grid_.cellSizePx;
+            float y = mrow * grid_.cellSizePx;
+            float w = grid_.cellSizePx;
+            float h = w;
+            if (type != ECellType::kFree && has_changed) {
+                grid_.cells[mrow][ncol].has_changed = false;
+                nvgBeginPath(vg_);
+                nvgRect(vg_, x, y, w, h);
+                switch (type) {
+                    case ECellType::kFree: 
+                        nvgFillColor(vg_, nvgRGBf(1,1,1));
+                        nvgFill(vg_);
+                        break;
+                    case ECellType::kOccupied: 
+                        nvgFillColor(vg_, nvgRGBf(0.1, 0.1, 0.1));
+                        nvgFill(vg_);
+                        break;
+                    case ECellType::kVisited: 
+                        nvgFillColor(vg_, nvgRGBf(0,1,0));
+                        nvgFill(vg_);
+                        break;
+                    case ECellType::kAdjacent: 
+                        nvgFillColor(vg_, nvgRGBAf(0.5,0,0,0.5));
+                        //nvgFillColor(vg_, nvgRGBA(255, 204, 255, 255));
+                        //nvgFillColor(vg_, nvgRGBA(204, 102, 255, 255));
+                        nvgFill(vg_);
+                        break;
+
+                }
+                nvgClosePath(vg_);
+            }
+        }
+    }
+
+
+    nvgEndFrame(vg_);
+    nvgluBindFramebufferGL3(nullptr);  
+
+}
+
+
 // void DrawTest::DataStructure_pop(Vec2i p) {
 //     switch (dataStructureType_) {
 //         case EDataStructureType::kStack: 
@@ -452,6 +546,7 @@ void DrawTest::draw() {
             int x, y;
             //ECellType type;
             ECellType type = grid_.cells[p.y][p.x].type;
+            grid_.cells[p.y][p.x].has_changed = true;
             //if (grid_.cells[p.y][p.x].type != ECellType::kVisited &&
             //    grid_.cells[p.y][p.x].type != ECellType::kOccupied) {
             if (type != ECellType::kVisited &&
@@ -558,22 +653,45 @@ void DrawTest::draw() {
     //              .height = 100,
     //              .offset = {50, 50}
     //             };
-
+    //glViewport(0, 0, fbWidth_, fbHeight_);
+    //glViewport(0, 0, fbWidth_, fbHeight_);
+    //glClearColor(1, 1, 1, 1);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     {
         nvgBeginFrame(vg_, winWidth_, winHeight_, pxRatio_);
         nvgSave(vg_);
-        nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
+        //nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
         nvgScale(vg_, zoom_, zoom_);
         //horizontal lines
         //for (int i=0; i<grid_.height/grid_.cellSizePx+1; i++) {
         
+        /*
         nvgBeginPath(vg_);
-        //nvgRect(vg_, grid_.offsetPx.x, grid_.offsetPx.y, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
         nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
         nvgFillColor(vg_, nvgRGBf(1,1,1));
         nvgFill(vg_);
         nvgClosePath(vg_);
+        */
+       
+        //nvgRestore(vg_);
 
+
+        {
+            DrawToFb2();
+            float iw = grid_.width*grid_.cellSizePx;
+            float ih = grid_.height*grid_.cellSizePx;
+            NVGpaint img = nvgImagePattern(vg_, 0, 0, iw, ih, 0, fb2_->image, 1.0f);
+
+            //nvgTranslate(vg_, 0, 0);
+            nvgBeginPath(vg_);
+            //nvgRoundedRect(vg_, 300, 30, 100, 100, 5);
+            nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
+            nvgFillPaint(vg_, img);
+            nvgFill(vg_);
+            nvgClosePath(vg_);
+        }
+
+        /*
         for (int mrow=0; mrow<grid_.height; mrow++) {
             for (int ncol=0; ncol<grid_.width; ncol++) {
                 bool has_changed = grid_.cells[mrow][ncol].has_changed;
@@ -611,6 +729,13 @@ void DrawTest::draw() {
                 }
             }
         }
+        */
+
+
+
+
+
+
         //printf("\n");
         //nvgFillColor(vg_, nvgRGBf(0.8, 0.8, 0.8));
         //nvgFill(vg_);
