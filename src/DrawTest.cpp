@@ -3,15 +3,16 @@
 
 DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx) :
     zoom_(1),
-    dataStructureType_(EDataStructureType::kStack)
+    dataStructureType_(EDataStructureType::kStack),
+    paint_backgroud_(true)
 {
     window_ = window;
     vg_ = ctx;
 
     grid_.isGridOn = true;
-    grid_.cellSizePx = 10;
-    grid_.width = 25;
-    grid_.height = 15;
+    grid_.cellSizePx = 5;
+    grid_.width = 35;
+    grid_.height = 25;
     grid_.offsetPx = {30, 30};
     //grid_.cells[0].resize(100);
     //grid_.cells[1].resize(grid_.height);
@@ -209,14 +210,14 @@ void DrawTest::DrawToFb2() {
 
     nvgBeginFrame(vg_, winWidth, winHeight, pxRatio_); 
 
-    if (is_fist_run) {
+    if (paint_backgroud_) {
         nvgBeginPath(vg_);
         nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);
         nvgFillColor(vg_, nvgRGBf(1,1,1));
         nvgFill(vg_);
         nvgClosePath(vg_);
 
-        is_fist_run = false;
+        paint_backgroud_ = false;
 
     }
 
@@ -627,6 +628,12 @@ void DrawTest::draw() {
         grid_.cells = vector<vector<Cell>> (grid_.height, vector<Cell>(grid_.width, c));
         grid_.cells[0][0].has_changed = true;
         this->set_occupied();
+
+        nvgluBindFramebufferGL3(fb2_);
+        glClearColor(0,0,0,0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        nvgluBindFramebufferGL3(nullptr);
+        paint_backgroud_ = true;
     }
     if (ImGui::SliderInt("interval in ms", &interval, 0, 200)) {
         timer_->set_interval(std::chrono::milliseconds(interval));
@@ -688,6 +695,7 @@ void DrawTest::draw() {
 
             nvgSave(vg_);
             nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
+            nvgScale(vg_, zoom_, zoom_);
             //nvgTranslate(vg_, 0, 0);
             nvgBeginPath(vg_);
             //nvgRoundedRect(vg_, 300, 30, 100, 100, 5);
@@ -758,6 +766,7 @@ void DrawTest::draw() {
 
             nvgSave(vg_);
             nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
+            nvgScale(vg_, zoom_, zoom_);
             nvgBeginPath(vg_);
             //nvgRoundedRect(vg_, 300, 30, 100, 100, 5);
             nvgRect(vg_, 0, 0, grid_.width*grid_.cellSizePx, grid_.height*grid_.cellSizePx);

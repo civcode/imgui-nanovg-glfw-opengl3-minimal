@@ -76,6 +76,7 @@ private:
         //Eigen::Vector2i offset;
     } Grid;
 
+    bool paint_backgroud_;
     int winWidth_;
     int winHeight_;
     int fbWidth_;
