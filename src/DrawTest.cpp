@@ -10,7 +10,7 @@ DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx) :
     vg_ = ctx;
 
     grid_.isGridOn = true;
-    grid_.cellSizePx = 5;
+    grid_.cellSizePx = 10;
     grid_.width = 35;
     grid_.height = 25;
     grid_.offsetPx = {30, 30};
