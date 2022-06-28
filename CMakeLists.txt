@@ -38,13 +38,17 @@ file(GLOB nanovg_SRC
 
 set(SOURCES 
     ${imgui_SRC}
-    ${nanovg_SRC}
+    #${nanovg_SRC}
     ${PROJECT_SOURCE_DIR}/src/DrawTest.cpp
     ${PROJECT_SOURCE_DIR}/dep/SimpleTimer/src/SimpleTimer.cpp
 
 )
 
+#add_library(imgui STATIC ${imgui_SRC})
+add_library(nanovg STATIC ${nanovg_SRC})
+
 add_executable(imgui-nanovg src/main.cpp ${SOURCES} )
 
-target_link_libraries(imgui-nanovg OpenGL::GL glfw ${CMAKE_DL_LIBS} Eigen3::Eigen)
+target_link_libraries(imgui-nanovg OpenGL::GL glfw ${CMAKE_DL_LIBS} Eigen3::Eigen 
+                      ${CMAKE_SOURCE_DIR}/build/libnanovg.a)
 
