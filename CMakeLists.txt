@@ -8,7 +8,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfatal-errors -fmax-errors=5")
 
 add_definitions(-DNANOVG_GL3)
 add_definitions(-DNANOVG_USE_GLEW)
-#add_definitions(-DNANOVG_GL3)
 
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/dep/glfw-3.3.7/lib/cmake)
 
@@ -35,8 +34,6 @@ file(GLOB imgui_SRC
 )
 
 file(GLOB nanovg_SRC
-    #${PROJECT_SOURCE_DIR}/dep/nanovg/src/*.h
-    #${PROJECT_SOURCE_DIR}/dep/nanovg/src/*.c
     ${PROJECT_SOURCE_DIR}/dep/nanovg/src/nanovg.c
     ${PROJECT_SOURCE_DIR}/dep/nanovg/src/nanovg_gl.c
     ${PROJECT_SOURCE_DIR}/dep/nanovg/src/nanovg_gl_utils.c
