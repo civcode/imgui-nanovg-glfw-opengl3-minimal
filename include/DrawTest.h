@@ -6,7 +6,6 @@
 #include <queue>
 #include <cstdio>
 
-#include <Eigen/Dense>
 #include <GLFW/glfw3.h>
 
 #include "imgui.h"
