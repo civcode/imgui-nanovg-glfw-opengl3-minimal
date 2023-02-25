@@ -127,7 +127,8 @@ int main(int, char**)
 	}
     
 
-    glfwSwapInterval(1); // Enable vsync
+    //glfwSwapInterval(1); // Enable vsync
+    glfwSwapInterval(0); // max. FPS
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
