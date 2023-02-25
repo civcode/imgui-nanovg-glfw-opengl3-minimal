@@ -7,3 +7,9 @@
 [submodule "dep/stb/stb"]
 	path = dep/stb
 	url = https://github.com/nothings/stb.git
+[submodule "dep/glew-2.1.0"]
+	path = dep/glew-2.1.0
+	url = https://github.com/civcode/glew-2.1.0-mingw-bin.git
+[submodule "dep/glfw-3.3.7"]
+	path = dep/glfw-3.3.7
+	url = https://github.com/civcode/glfw-3.3.7-mingw-bin.git
