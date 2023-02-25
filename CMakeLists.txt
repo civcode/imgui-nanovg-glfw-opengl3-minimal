@@ -16,6 +16,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/dep/nanovg/src
     ${PROJECT_SOURCE_DIR}/dep/nanovg/example
     ${PROJECT_SOURCE_DIR}/dep/stb
+    ${PROJECT_SOURCE_DIR}/dep
 )
 
 file(GLOB imgui_SRC
@@ -39,4 +40,4 @@ set(SOURCES
 add_executable(imgui-nanovg src/main.cpp ${SOURCES} )
 
 target_link_libraries(imgui-nanovg OpenGL::GL glfw ${CMAKE_DL_LIBS})
-
+target_compile_features(imgui-nanovg PUBLIC cxx_std_17)
