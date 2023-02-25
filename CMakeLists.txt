@@ -10,6 +10,11 @@ find_package(OpenGL REQUIRED)
 
 add_definitions(-DNANOVG_GL3)
 
+if (WIN32)
+    add_definitions(-DNANOVG_USE_GLEW)
+    list(APPEND CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/dep/glfw-3.3.7/lib/cmake)
+endif (WIN32)
+
 include_directories(
     ${PROJECT_SOURCE_DIR}/dep/imgui
     ${PROJECT_SOURCE_DIR}/dep/imgui/backends
@@ -17,6 +22,10 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/dep/nanovg/example
     ${PROJECT_SOURCE_DIR}/dep/stb
     ${PROJECT_SOURCE_DIR}/dep
+
+    if (WIN32)
+        ${PROJECT_SOURCE_DIR}/dep/glew-2.1.0/include
+    endif (WIN32)
 )
 
 file(GLOB imgui_SRC
@@ -27,7 +36,7 @@ file(GLOB imgui_SRC
 )
 
 file(GLOB nanovg_SRC
-    ${PROJECT_SOURCE_DIR}/dep/nanovg/src/*.h
+    //${PROJECT_SOURCE_DIR}/dep/nanovg/src/*.h
     ${PROJECT_SOURCE_DIR}/dep/nanovg/src/*.c
     ${PROJECT_SOURCE_DIR}/dep/nanovg/example/perf.c
 )
@@ -36,6 +45,10 @@ set(SOURCES
     ${imgui_SRC}
     ${nanovg_SRC}
 )
+
+if (WIN32)
+    file(COPY ${CMAKE_SOURCE_DIR}/dep/glew-2.1.0/lib/glew32.dll DESTINATION ${CMAKE_SOURCE_DIR}/build)
+endif (WIN32)
 
 add_executable(imgui-nanovg src/main.cpp ${SOURCES} )
 
