@@ -13,3 +13,6 @@
 [submodule "dep/glfw-3.3.7"]
 	path = dep/glfw-3.3.7
 	url = https://github.com/civcode/glfw-3.3.7-mingw-bin.git
+[submodule "dep/simple-timer"]
+	path = dep/simple-timer
+	url = https://github.com/civcode/simple-timer.git

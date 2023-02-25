@@ -20,6 +20,9 @@
 #include "nanovg_gl_utils.h"
 #include "perf.h"
 
+
+#include "DrawTest.h"
+
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
 // Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
@@ -39,14 +42,15 @@ void errorcb(int error, const char* desc)
 
 int loadFonts(NVGcontext *vg) {
     int font;
-    font = nvgCreateFont(vg, "sans", "../example/Roboto-Regular.ttf");
+
+    font = nvgCreateFont(vg, "roboto-regular", "../dep/nanovg/example/Roboto-Regular.ttf");
     if (font == -1) {
         printf("Could not add font regular.\n");
         return -1;
     }
-    font = nvgCreateFont(vg, "sans-bold", "../example/Roboto-Bold.ttf");
+    font = nvgCreateFont(vg, "roboto-medium", "../dep/imgui/misc/fonts/Roboto-Medium.ttf");
     if (font == -1) {
-        printf("Could not add font bold.\n");
+        printf("Could not add font regular.\n");
         return -1;
     }
     return 0;
@@ -86,7 +90,7 @@ int main(int, char**)
 #endif
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 
-    window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL2 example", NULL, NULL);
+    window = glfwCreateWindow(1280, 720, "Dear ImGui NanoVG+GLFW+OpenGL3", NULL, NULL);
     if (window == NULL)
         return 1;
 
@@ -112,14 +116,14 @@ int main(int, char**)
 		return -1;
 	}
 
-	// if (loadFonts(vg) == -1) {
-	// 	printf("Could not load fonts\n");
-	// 	return -1;
-	// }
+	if (loadFonts(vg) == -1) {
+		printf("Could not load fonts\n");
+		return -1;
+	}
     
-    glfwSwapInterval(1); // Enable vsync
-    //glfwSwapInterval(0); // max. FPS
 
+    //glfwSwapInterval(1); // Enable vsync
+    glfwSwapInterval(0); // max. FPS
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -146,11 +150,12 @@ int main(int, char**)
     // - Read 'docs/FONTS.txt' for more instructions and details.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
     //io.Fonts->AddFontDefault();
-    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Roboto-Medium.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Roboto-Medium.ttf", 16.0f);
     io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Roboto-Medium.ttf", 17.0f);
-    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Cousine-Regular.ttf", 15.0f);
-    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/DroidSans.ttf", 16.0f);
-    io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/ProggyTiny.ttf", 10.0f);
+    io.Fonts->AddFontFromFileTTF("../dep/nanovg/example/Roboto-Regular.ttf", 17.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/Cousine-Regular.ttf", 15.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/DroidSans.ttf", 16.0f);
+    //io.Fonts->AddFontFromFileTTF("../dep/imgui/misc/fonts/ProggyTiny.ttf", 10.0f);
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 
@@ -158,6 +163,8 @@ int main(int, char**)
     bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    DrawTest draw(window, vg);
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -175,6 +182,11 @@ int main(int, char**)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
         if (show_demo_window)
@@ -252,13 +264,21 @@ int main(int, char**)
         //ImGui::Dummy(ImVec2(20, 20));
 
 
+        //ImGui::SetWindowFontScale(1.0);
+         
+        //NanoVG
+        {
+            //glfwGetWindowSize(window, &winWidth, &winHeight);
+            //glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+            //nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
+
+            draw.draw();
+
+            //nvgEndFrame(vg);
+        }
+        
         // Rendering
         ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         // If you are using this code with non-legacy OpenGL header/contexts (which you should not, prefer using imgui_impl_opengl3.cpp!!),
         // you may need to backup/reset/restore current shader using the commented lines below.
@@ -272,33 +292,59 @@ int main(int, char**)
 
         
         //NanoVG
-        {
+        if (false) {
             glfwGetWindowSize(window, &winWidth, &winHeight);
             glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-            nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
-            nvgSave(vg);
-            double mx, my;
-            float zoom = 1;
+            //nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
+            //nvgSave(vg);
+            //draw.draw();
 
-            glfwGetCursorPos(window, &mx, &my);
-            // cursor
-            nvgSave(vg);
-            nvgTranslate(vg, mx, my); //move offset of CS to [mx. my]
-            nvgScale(vg, zoom, zoom);
-            nvgBeginPath(vg);
-            nvgMoveTo(vg, 0, 0);
-            nvgLineTo(vg, 20, 0);
-            nvgMoveTo(vg, 0, 0);
-            nvgLineTo(vg, 0, 20);
-            nvgCircle(vg, 20, 20, 2);
-            nvgStrokeColor(vg, nvgRGBAf(1,1,1,1));
-            nvgStrokeWidth(vg, 2);
-            nvgStroke(vg);
-            nvgClosePath(vg);
-            nvgRestore(vg);
+            if (false) {
+                double mx, my;
+                float zoom = 1;
 
-            nvgRestore(vg);
-            nvgEndFrame(vg);
+                glfwGetCursorPos(window, &mx, &my);
+                // cursor
+                nvgSave(vg);
+                nvgTranslate(vg, mx, my); //move offset of CS to [mx. my]
+                nvgScale(vg, zoom, zoom);
+                nvgBeginPath(vg);
+                nvgMoveTo(vg, 0, 0);
+                nvgLineTo(vg, 20, 0);
+                nvgMoveTo(vg, 0, 0);
+                nvgLineTo(vg, 0, 20);
+                nvgCircle(vg, 20, 20, 2);
+                nvgStrokeColor(vg, nvgRGBAf(1,1,1,1));
+                nvgStrokeWidth(vg, 2);
+                nvgStroke(vg);
+                nvgClosePath(vg);
+            }
+
+            // nvgRestore(vg);
+
+            // nvgBeginPath(vg);
+            // nvgFontSize(vg, 14.5);
+            // //nvgFontSize(vg, 17.0);
+            // nvgFontFace(vg, "roboto-regular");
+            // nvgTextAlign(vg, NVG_ALIGN_TOP);
+            // //nvgFontBlur(vg, 0.1);
+            // nvgFillColor(vg, nvgRGBf(0,0,0));
+            // nvgText(vg, 50, 100, "Hello, world!", nullptr);
+            // nvgFontFace(vg, "roboto-medium");
+            // nvgText(vg, 50, 120, "Hello, world!", nullptr);
+            // nvgText(vg, 50, 160, "Demo Window", nullptr);
+            // nvgRect(vg, 30, 120, 17, 17);
+            // nvgRect(vg, 50, 140, 17, 17);
+            // nvgFill(vg); 
+            // nvgClosePath(vg);
+
+
+            //nvgRestore(vg);
+
+            //nvgRestore(vg);
+
+
+            //nvgEndFrame(vg);
         }
 
         glfwMakeContextCurrent(window);
