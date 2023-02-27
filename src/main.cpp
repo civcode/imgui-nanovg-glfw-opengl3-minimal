@@ -58,7 +58,7 @@ int loadFonts(NVGcontext *vg) {
 
 int main(int, char**)
 {
-    // Setup window
+    /* Setup GLFW (Graphic Library Framework) */
     glfwSetErrorCallback(glfw_error_callback);
     GLFWwindow* window;
 
@@ -67,19 +67,6 @@ int main(int, char**)
 		return -1;
 	};
 
-    // Set up NanoVG
-    NVGcontext* vg = NULL;
-	GPUtimer gpuTimer;
-	PerfGraph fps, cpuGraph, gpuGraph;
-	double prevt = 0, cpuTime = 0;
-	NVGLUframebuffer* fb = NULL;
-	int winWidth, winHeight;
-	int fbWidth, fbHeight;
-	float pxRatio;
-
-    initGraph(&fps, GRAPH_RENDER_FPS, "Frame Time");
-	initGraph(&cpuGraph, GRAPH_RENDER_MS, "CPU Time");
-	initGraph(&gpuGraph, GRAPH_RENDER_MS, "GPU Time");
 
     glfwSetErrorCallback(errorcb);
 #ifndef _WIN32 // don't require this on win32, and works with more cards
@@ -96,6 +83,19 @@ int main(int, char**)
 
     glfwMakeContextCurrent(window);
     
+    /* Setup NanoVG */
+    NVGcontext* vg = NULL;
+	GPUtimer gpuTimer;
+	PerfGraph fps, cpuGraph, gpuGraph;
+	double prevt = 0, cpuTime = 0;
+	NVGLUframebuffer* fb = NULL;
+	int winWidth, winHeight;
+	int fbWidth, fbHeight;
+	float pxRatio;
+
+    // initGraph(&fps, GRAPH_RENDER_FPS, "Frame Time");
+	// initGraph(&cpuGraph, GRAPH_RENDER_MS, "CPU Time");
+	// initGraph(&gpuGraph, GRAPH_RENDER_MS, "GPU Time");
     vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
 
 	if (vg == NULL) {
@@ -125,7 +125,7 @@ int main(int, char**)
     //glfwSwapInterval(1); // Enable vsync
     glfwSwapInterval(0); // max. FPS
 
-    // Setup Dear ImGui context
+    /* Setup Dear ImGui context */
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -229,6 +229,7 @@ int main(int, char**)
         
         //ImGui::Button("myButton");
         //ImGui::Begin("main",nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground);
+        /*
         ImGui::Begin("main");
         //ImGui::SetWindowPos("main", ImVec2(10, 0));
         if (ImGui::Button("my button")) {
@@ -237,7 +238,7 @@ int main(int, char**)
         ImGui::Button("my button 1");
         ImGui::Button("my button 2");
         ImGui::End();
-
+        */
 
         ImGui::Begin("tabs");
         ImGui::BeginTabBar("Settings#left_tabs_bar");

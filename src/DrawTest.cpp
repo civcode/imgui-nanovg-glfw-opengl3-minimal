@@ -538,8 +538,10 @@ void DrawTest::draw() {
     if (e == 0) algorithmType_ = EAlgorithmType::kDFS;
     if (e == 1) algorithmType_ = EAlgorithmType::kBFS;
 
+    ImVec2 buttonSize(-1, 0);
     //ImGui::SetWindowPos("main", ImVec2(10, 0));
-    if (ImGui::Button("step") || (run && timer_->is_expired())) {
+    //if (ImGui::Button("step") || (run && timer_->is_expired())) {
+    if (ImGui::Button("step", buttonSize) || (run && timer_->is_expired())) {
         //printf("test\n");
         if (queue_.size() > 0) {
             Vec2i p = queue_.front();
@@ -613,11 +615,11 @@ void DrawTest::draw() {
     static int interval = 0;
     //ImGui::Button("adjacent");
     //if (ImGui::Button("run")) {
-    if (ImGui::Button(!run ? "run" : "stop")) {
+    if (ImGui::Button(!run ? "run" : "stop", buttonSize)) {
         run = !run;
         timer_->set_interval(std::chrono::milliseconds(interval));
     }
-    if (ImGui::Button("reset")) {
+    if (ImGui::Button("reset", buttonSize)) {
         Vec2i p = {0, 0};
         //std::stack<Vec2i> s;
         stack_ = std::stack<Vec2i>();
@@ -635,8 +637,16 @@ void DrawTest::draw() {
         nvgluBindFramebufferGL3(nullptr);
         paint_backgroud_ = true;
     }
-    if (ImGui::SliderInt("interval in ms", &interval, 0, 200)) {
-        timer_->set_interval(std::chrono::milliseconds(interval));
+    // if (ImGui::SliderInt("interval in ms", &interval, 0, 200)) {
+    //     timer_->set_interval(std::chrono::milliseconds(interval));
+    // }
+    {
+        int step = 10; 
+        if (ImGui::InputScalar("dt", ImGuiDataType_S32, &interval, &step)) {
+            if (interval < 0)
+                interval = 0;
+            timer_->set_interval(std::chrono::milliseconds(interval));
+        }
     }
     //ImGui::Checkbox("Show step buttons", true);
     bool input_step = true;
