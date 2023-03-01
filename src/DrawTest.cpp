@@ -11,8 +11,8 @@ DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx) :
 
     grid_.isGridOn = true;
     grid_.cellSizePx = 10;
-    grid_.width = 35;
-    grid_.height = 25;
+    grid_.width = 55;
+    grid_.height = 45;
     grid_.offsetPx = {30, 30};
     //grid_.cells[0].resize(100);
     //grid_.cells[1].resize(grid_.height);
@@ -56,7 +56,7 @@ DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx) :
 
 void DrawTest::set_occupied() {
     vector<Vec2i> occ = { {3, 5}, {8, 0}, {4, 0}, {6, 6}, {6,7}, {6,8}, /*{6,9}, {6,10},*/
-                          {7,7}, {8,7}, {9,7} };
+                          {7,7}, {8,7}, {9,7}, {14,6}, {14,7}, {14, 8}, {8, 12} };
     for (auto elem : occ) {
         int col = elem.y;
         int row = elem.x;
@@ -544,10 +544,31 @@ void DrawTest::draw() {
     if (ImGui::Button("step", buttonSize) || (run && timer_->is_expired())) {
         //printf("test\n");
         //if (queue_.size() > 0) {
-        if (stack_.size() > 0) {
-            Vec2i p = stack_.top();
+        bool isEmpty = true;
+        switch (algorithmType_) {
+            case EAlgorithmType::kDFS:
+                isEmpty = (stack_.size() > 0) ? false : true;
+                break;
+            case EAlgorithmType::kBFS:
+                isEmpty = (queue_.size() > 0) ? false : true;
+                break;
+        }
+        
+        //if (stack_.size() > 0) ) {
+        if (!isEmpty) {
+            Vec2i p;
             //printf("top = [%d, %d]\n", p.x, p.y);
-            stack_.pop();
+            switch (algorithmType_) {
+                case EAlgorithmType::kDFS:
+                    p = stack_.top();
+                    stack_.pop();
+                    break;
+                case EAlgorithmType::kBFS:
+                    p = queue_.front();
+                    queue_.pop();
+                    break;
+            }
+
             int x, y;
             //ECellType type;
             ECellType type = grid_.cells[p.y][p.x].type;
@@ -557,6 +578,8 @@ void DrawTest::draw() {
             if (type != ECellType::kVisited &&
                 type != ECellType::kOccupied) {
                 grid_.cells[p.y][p.x].type = ECellType::kVisited;
+                //grid_.cells[p.y][p.x].type = ECellType::kCurrent;
+                currentPos_ = p;
                 x = p.x - 1;
                 y = p.y;
                 if (x >= 0) {
@@ -566,7 +589,15 @@ void DrawTest::draw() {
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
                         //queiue_.push(p);
-                        stack_.push(p);
+                        //stack_.push(p);
+                        switch (algorithmType_) {
+                            case EAlgorithmType::kDFS:
+                                stack_.push(p);
+                                break;
+                            case EAlgorithmType::kBFS:
+                                queue_.push(p);
+                                break;
+                        }
                         //printf("push [%d, %d]\n", y, x);
                     }
                 }
@@ -579,7 +610,15 @@ void DrawTest::draw() {
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
                         //queue_.push(p);
-                        stack_.push(p);
+                        //stack_.push(p);
+                        switch (algorithmType_) {
+                            case EAlgorithmType::kDFS:
+                                stack_.push(p);
+                                break;
+                            case EAlgorithmType::kBFS:
+                                queue_.push(p);
+                                break;
+                        }
                         //printf("push [%d, %d]\n", y, x);
                     }
                 }
@@ -592,7 +631,15 @@ void DrawTest::draw() {
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
                         //queue_.push(p);
-                        stack_.push(p);
+                        //stack_.push(p);
+                        switch (algorithmType_) {
+                            case EAlgorithmType::kDFS:
+                                stack_.push(p);
+                                break;
+                            case EAlgorithmType::kBFS:
+                                queue_.push(p);
+                                break;
+                        }
                         //printf("push [%d, %d]\n", y, x);
                     }
                 }
@@ -605,7 +652,15 @@ void DrawTest::draw() {
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
                         //queue_.push(p);
-                        stack_.push(p);
+                        //stack_.push(p);
+                        switch (algorithmType_) {
+                            case EAlgorithmType::kDFS:
+                                stack_.push(p);
+                                break;
+                            case EAlgorithmType::kBFS:
+                                queue_.push(p);
+                                break;
+                        }
                         //printf("push [%d, %d]\n", y, x);
                     }
 

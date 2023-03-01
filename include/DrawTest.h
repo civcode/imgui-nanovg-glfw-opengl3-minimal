@@ -40,6 +40,7 @@ private:
 
     enum class ECellType {
         kFree,
+        kCurrent,
         kOccupied,
         kVisited,
         kAdjacent
@@ -83,6 +84,8 @@ private:
 
     float pxRatio_;
     float zoom_;
+
+    Vec2i currentPos_;
 
     EDataStructureType dataStructureType_;
     EAlgorithmType algorithmType_;
