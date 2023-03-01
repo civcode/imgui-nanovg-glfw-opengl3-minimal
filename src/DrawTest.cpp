@@ -543,10 +543,11 @@ void DrawTest::draw() {
     //if (ImGui::Button("step") || (run && timer_->is_expired())) {
     if (ImGui::Button("step", buttonSize) || (run && timer_->is_expired())) {
         //printf("test\n");
-        if (queue_.size() > 0) {
-            Vec2i p = queue_.front();
+        //if (queue_.size() > 0) {
+        if (stack_.size() > 0) {
+            Vec2i p = stack_.top();
             //printf("top = [%d, %d]\n", p.x, p.y);
-            queue_.pop();
+            stack_.pop();
             int x, y;
             //ECellType type;
             ECellType type = grid_.cells[p.y][p.x].type;
@@ -564,7 +565,8 @@ void DrawTest::draw() {
                         grid_.cells[y][x].type = ECellType::kAdjacent;
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
-                        queue_.push(p);
+                        //queiue_.push(p);
+                        stack_.push(p);
                         //printf("push [%d, %d]\n", y, x);
                     }
                 }
@@ -576,7 +578,8 @@ void DrawTest::draw() {
                         grid_.cells[y][x].type = ECellType::kAdjacent;
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
-                        queue_.push(p);
+                        //queue_.push(p);
+                        stack_.push(p);
                         //printf("push [%d, %d]\n", y, x);
                     }
                 }
@@ -588,7 +591,8 @@ void DrawTest::draw() {
                         grid_.cells[y][x].type = ECellType::kAdjacent;
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
-                        queue_.push(p);
+                        //queue_.push(p);
+                        stack_.push(p);
                         //printf("push [%d, %d]\n", y, x);
                     }
                 }
@@ -600,7 +604,8 @@ void DrawTest::draw() {
                         grid_.cells[y][x].type = ECellType::kAdjacent;
                         grid_.cells[y][x].has_changed = true;
                         Vec2i p = {.x = x, .y = y};
-                        queue_.push(p);
+                        //queue_.push(p);
+                        stack_.push(p);
                         //printf("push [%d, %d]\n", y, x);
                     }
 
