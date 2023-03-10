@@ -50,8 +50,9 @@ DrawTest::DrawTest(GLFWwindow *window, NVGcontext *ctx) :
         printf("Could not create FBO.\n");
     }
 
+    // draw grid to FB
     this->DrawToFb();
-    this->DrawToFb2();
+    //this->DrawToFb2();
 }
 
 void DrawTest::set_occupied() {
@@ -758,6 +759,7 @@ void DrawTest::draw() {
 
 
         {
+            //DrawToFb();
             DrawToFb2();
             float iw = grid_.width*grid_.cellSizePx;
             float ih = grid_.height*grid_.cellSizePx;
@@ -832,7 +834,7 @@ void DrawTest::draw() {
             // use fb
             float iw = grid_.width*grid_.cellSizePx;
             float ih = grid_.height*grid_.cellSizePx;
-            NVGpaint img = nvgImagePattern(vg_, 0, 0, iw, ih, 0, fb_->image, 0.2f);
+            NVGpaint img = nvgImagePattern(vg_, 0, 0, iw, ih, 0, fb_->image, 0.3f);
 
             nvgSave(vg_);
             nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
