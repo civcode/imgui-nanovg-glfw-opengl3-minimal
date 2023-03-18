@@ -161,7 +161,7 @@ void DrawTest::DrawToFb() {
         nvgMoveTo(vg_, x, yFrom);
         nvgLineTo(vg_, x, yTo);
     }
-    nvgStrokeColor(vg_, nvgRGBAf(0.2, 0.2, 0.2, 1));
+    nvgStrokeColor(vg_, nvgRGBAf(0.2, 0.2, 0.2, 1.0));
     nvgStrokeWidth(vg_, 1.0);
     nvgStroke(vg_);
     nvgClosePath(vg_);
@@ -834,7 +834,7 @@ void DrawTest::draw() {
             // use fb
             float iw = grid_.width*grid_.cellSizePx;
             float ih = grid_.height*grid_.cellSizePx;
-            NVGpaint img = nvgImagePattern(vg_, 0, 0, iw, ih, 0, fb_->image, 0.3f);
+            NVGpaint img = nvgImagePattern(vg_, 0, 0, iw, ih, 0, fb_->image, 0.5f);
 
             nvgSave(vg_);
             nvgTranslate(vg_, grid_.offsetPx.x, grid_.offsetPx.y);
